@@ -234,7 +234,7 @@ class TrafficJunctionEnv(gym.Env):
 
         self.isFull = False
         self.counter = 0
-        self.b = random.randint(self.h // 2, self.h)
+        self.b = random.randint(20, 40)
         print(self.b)
 
         return obs
@@ -313,6 +313,7 @@ class TrafficJunctionEnv(gym.Env):
         #print("Actions", action)
         #print("Alive cars", self.alive_mask)
         #print("Rewards", reward)
+        print(self.car_loc)
 
         return obs, reward, self.episode_over, debug
 
@@ -630,21 +631,29 @@ class TrafficJunctionEnv(gym.Env):
         #Forces action to be brake if car is crashed with car in front, and it is not the first car. This means that the cars cannot pass each other
         i = idx
 
+
         #Sinusoidal movement of first car
-        if idx == 0 and (self.counter % 6 == 0 or self.counter % 6 == 1):
+        if idx == 0 and (self.counter % 12 == 0 or self.counter % 12 == 1 or self.counter % 12 == 2 or self.counter % 12 == 3):
             act = 3
-        elif idx == 0 and (self.counter % 6 == 3 or self.counter % 6 == 4):
+        elif idx == 0 and (self.counter % 12 == 6 or self.counter % 12 == 7 or self.counter % 12 == 8 or self.counter % 12 == 9):
             act = 1
         elif idx == 0:
             act = 2
 
+        """
+        #if idx == 0 and self.counter == self.b and self.isFull:
+            #act = 0
+
+        """
+
         #this is causing them all to emergency break almost every time??
         while i != 0:
-            if self.car_loc[idx - i, 0] == self.car_loc[idx, 0]:
+            if self.car_loc[idx - i, 0] == self.car_loc[idx, 0] and self.alive_mask[idx-i] !=0:
                 act = 0 #Emergency brake
                 break
 
             i = i - 1
+
 
 
         if self.alive_mask[idx] == 0:
